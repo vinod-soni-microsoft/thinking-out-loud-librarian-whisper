@@ -1,13 +1,20 @@
-from semantic_kernel.connectors.ai.open_ai import OpenAIChatCompletion
 import semantic_kernel as sk
+from semantic_kernel.connectors.ai.open_ai import OpenAIChatCompletion
 from pathlib import Path
 import os
 import openai
+from openai import OpenAI
 from dotenv import load_dotenv
 load_dotenv()
+client = OpenAI()
 openai.api_key = os.getenv('OPENAI_API_KEY')
-with open(Path.cwd() / "src" / "03_06.mp3", "rb") as audio_file:
-    transcript = openai.Audio.transcribe("whisper-1", audio_file).text
+#with open(Path.cwd() / "src" / "03_06.mp3", "rb") as audio_file:
+#    transcript = openai.Audio.transcribe("whisper-1", audio_file).text
+audio_file= open(Path.cwd() / "src" / "03_06.mp3", "rb")
+transcript = client.audio.transcriptions.create(
+  model="whisper-1", 
+  file=audio_file
+)
 
 
 kernel = sk.Kernel()
@@ -23,4 +30,4 @@ base_prompt = "You are a librarian." +\
 
 recommendation = kernel.create_semantic_function(base_prompt,max_tokens=512)
 
-print(recommendation(transcript))
+print(recommendation(transcript.text))
